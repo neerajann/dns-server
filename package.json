@@ -4,17 +4,22 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js"
+    "dev": "cross-env NODE_ENV=development nodemon server.js",
+    "start": "cross-env NODE_ENV=production node server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Neerajan",
   "license": "ISC",
   "type": "module",
   "dependencies": {
     "dns-packet": "^5.6.1",
-    "dotenv": "^17.2.3",
+    "ioredis": "^5.9.2",
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.2"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.2.4",
+    "nodemon": "^3.1.11"
   }
 }

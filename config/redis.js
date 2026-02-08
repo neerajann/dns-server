@@ -1,13 +1,12 @@
 import Redis from 'ioredis'
-import env from 'dotenv'
-env.config({ quiet: true })
 
 let redis
+const REDIS_PORT = process.env.REDIS_PORT || 6379
 
 const connectRedis = async () => {
   redis = new Redis({
     host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
+    port: REDIS_PORT,
     connectTimeout: 5000,
     maxRetriesPerRequest: null,
     retryStrategy(times) {

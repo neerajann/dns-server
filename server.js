@@ -1,3 +1,4 @@
+import './config/env.js'
 import dgram from 'node:dgram'
 import { handleQuery } from './handlers/queryHandler.js'
 import { handleUpstreamResponse } from './handlers/upstreamHandler.js'

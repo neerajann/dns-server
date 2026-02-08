@@ -1,6 +1,10 @@
-FROM node   
-RUN mkdir dns-server
-COPY . /dns-server
-WORKDIR /dns-server
+FROM node:22-alpine
+
+WORKDIR /app
+COPY package*.json .
+RUN npm install
+COPY . .
+
 EXPOSE 53
-CMD ["node", "server.js" ]
+
+CMD [ "npm","start" ]

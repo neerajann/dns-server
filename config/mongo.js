@@ -1,7 +1,4 @@
 import { MongoClient } from 'mongodb'
-import env from 'dotenv'
-
-env.config({ quiet: true })
 
 let client
 let db
