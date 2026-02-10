@@ -16,7 +16,16 @@ const resolveRRset = async ({ name, type }) => {
           Array.isArray(data.data)
         ) {
           content = Buffer.from(data.data)
+        } else if (
+          Array.isArray(data) &&
+          data[0] &&
+          typeof data[0] === 'object' &&
+          data[0].type === 'Buffer' &&
+          Array.isArray(data[0].data)
+        ) {
+          content = Buffer.from(data[0].data)
         }
+
         return {
           type,
           content,
@@ -45,7 +54,7 @@ const cacheRRsets = async (answers) => {
 
   for (const [key, dataArray] of Object.entries(rrsets)) {
     const ttl = Math.min(
-      ...answers.filter((r) => `${r.name}:${r.type}===key`).map((r) => r.ttl),
+      ...answers.filter((r) => `${r.name}:${r.type}` === key).map((r) => r.ttl),
     )
     if (ttl > 0) {
       await cache.set(key, JSON.stringify(dataArray), 'EX', ttl)

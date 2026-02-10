@@ -1,4 +1,6 @@
 import { getBlocklistCollection } from '../config/mongo.js'
+import { styleText } from 'node:util'
+
 const blockedDomains = new Set()
 
 const loadBlockList = async () => {
@@ -11,7 +13,9 @@ const loadBlockList = async () => {
   for (const doc of docs) {
     blockedDomains.add(doc.name)
   }
-  console.log(`Loaded ${blockedDomains.size} blocked domains`)
+  console.log(
+    styleText('green', `Loaded ${blockedDomains.size} blocked domains`),
+  )
 }
 
 const isBlocked = (domain) => {

@@ -1,0 +1,28 @@
+services:
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    volumes:
+      - mongo-dns-data:/data/db
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+
+  dns-server:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 53:53/udp
+      - 53:53/tcp
+    environment:
+      - REDIS_HOST=redis
+      - MONGO_DB_URL=mongodb://mongodb:27017/dns
+    depends_on:
+      - mongodb
+      - redis
+    restart: on-failure:5
+
+volumes:
+  mongo-dns-data: {}

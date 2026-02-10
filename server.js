@@ -5,6 +5,7 @@ import { handleUpstreamResponse } from './handlers/upstreamHandler.js'
 import { connectDatabase } from './config/mongo.js'
 import { connectRedis } from './config/redis.js'
 import { loadBlockList } from './services/blocklistService.js'
+import { styleText } from 'node:util'
 
 await connectDatabase()
 await connectRedis()
@@ -13,6 +14,7 @@ await loadBlockList()
 const pendingRequests = new Map()
 const server = dgram.createSocket('udp4')
 const upstream = dgram.createSocket('udp4')
+const PORT = process.env.PORT || 53
 
 server.on('message', async (msg, rinfo) => {
   await handleQuery({ msg, rinfo, server, pendingRequests, upstream })
@@ -23,9 +25,9 @@ upstream.on('message', async (response) => {
 })
 
 server.on('error', (err) => {
-  console.error('DNS Server error:\n', err)
+  console.error(styleText('red', `DNS Server error:\n, ${err}`))
 })
 
-server.bind(53, '0.0.0.0', () => {
-  console.log('DNS Server running on port 53 ')
+server.bind(PORT, '0.0.0.0', () => {
+  console.log(styleText('green', `DNS Server running on port ${PORT} `))
 })

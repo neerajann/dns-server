@@ -1,6 +1,6 @@
-if (process.env.NODE_ENV !== 'production') {
-  await import('dotenv/config')
-}
+import dotenv from 'dotenv'
+dotenv.config({ quiet: true })
+
 if (!process.env.REDIS_HOST) {
   throw new Error('Missing REDIS_HOST')
 }

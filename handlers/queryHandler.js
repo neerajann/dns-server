@@ -14,6 +14,16 @@ const handleQuery = async ({
 }) => {
   try {
     const incomingMessage = dnsPacket.decode(msg)
+
+    console.log(
+      'Message From:',
+      rinfo.address,
+      'Questions:',
+      incomingMessage.questions[0].name,
+      'Type:',
+      incomingMessage.questions[0].type,
+    )
+
     const question = incomingMessage.questions[0]
     if (isBlocked(question.name)) {
       return sendResponse({
@@ -51,8 +61,6 @@ const handleQuery = async ({
     })
 
     if (rrset) {
-      console.log('Question', question.name, question.type)
-      console.log('From cache', rrset)
       return sendResponse({
         server,
         incomingMessage,

@@ -26,8 +26,8 @@ const buildAnswers = (questions, qtype, rrset, blocked) => {
       class: 'IN',
       ttl: r.ttl ?? 30,
       data: {
-        preference: r.priority ?? 10,
-        exchange: r.content,
+        preference: r.content.preference ?? 10,
+        exchange: r.content.exchange,
       },
     }))
   }

@@ -1,4 +1,5 @@
 import Redis from 'ioredis'
+import { styleText } from 'node:util'
 
 let redis
 const REDIS_PORT = process.env.REDIS_PORT || 6379
@@ -15,11 +16,11 @@ const connectRedis = async () => {
   })
 
   redis.on('error', (err) => {
-    console.error('[Redis error]', err.message)
+    console.error(styleText('red', `[Redis error]', ${err.message}`))
   })
 
   redis.on('connect', () => {
-    console.log('[Redis] connected')
+    console.log(styleText('green', '[Redis] connected'))
   })
 
   redis.on('close', () => {
