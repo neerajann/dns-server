@@ -32,11 +32,9 @@ const handleQuery = async ({
         rinfo,
         blocked: true,
         rrset: {
-          records: [
-            {
-              content: '0.0.0.0',
-            },
-          ],
+          records: {
+            content: ['0.0.0.0'],
+          },
         },
       })
     }

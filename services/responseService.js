@@ -1,39 +1,41 @@
 import dnsPacket from 'dns-packet'
 
 const buildAnswers = (questions, qtype, rrset, blocked) => {
+  const ttl = rrset.records.ttl || 50
+
   if (blocked) {
-    return rrset.records.map((r) => ({
+    return rrset.records.content.map((r) => ({
       name: questions.name,
       type: 'A',
       class: 'IN',
-      ttl: 20,
-      data: r.content,
+      ttl: ttl,
+      data: r,
     }))
   }
   if (qtype === 'PTR') {
-    return rrset.records.map((r) => ({
+    return rrset.records.content.map((r) => ({
       name: questions.name,
       type: 'PTR',
       class: 'IN',
-      ttl: r.ttt ?? 20,
-      data: r.content,
+      ttl: ttl,
+      data: r,
     }))
   }
   if (qtype === 'MX') {
-    return rrset.records.map((r) => ({
+    return rrset.records.content.map((r) => ({
       name: questions.name,
       type: 'MX',
       class: 'IN',
-      ttl: r.ttl ?? 30,
+      ttl: ttl,
       data: {
-        preference: r.content.preference ?? 10,
-        exchange: r.content.exchange,
+        preference: r.preference ?? 10,
+        exchange: r.exchange,
       },
     }))
   }
   if (qtype === 'TXT') {
-    return rrset.records.flatMap((r) => {
-      let txtData = r.content
+    return rrset.records.content.flatMap((r) => {
+      let txtData = r
       if (!Array.isArray(txtData)) txtData = [txtData]
 
       const splitData = []
@@ -50,17 +52,17 @@ const buildAnswers = (questions, qtype, rrset, blocked) => {
         name: questions.name,
         type: 'TXT',
         class: 'IN',
-        ttl: r.ttl ?? 50,
+        ttl: ttl,
         data,
       }))
     })
   }
-  return rrset.records.map((r) => ({
+  return rrset.records.content.map((r) => ({
     name: questions.name,
     type: qtype,
     class: 'IN',
-    ttl: r.ttl ?? 50,
-    data: r.content,
+    ttl: ttl,
+    data: r,
   }))
 }
 

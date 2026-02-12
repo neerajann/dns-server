@@ -7,30 +7,31 @@ const resolveRRset = async ({ name, type }) => {
   if (rrsetStr) {
     const rrset = JSON.parse(rrsetStr)
     return {
-      records: rrset.map((data) => {
-        let content = data
-        if (
-          data &&
-          typeof data === 'object' &&
-          data.type === 'Buffer' &&
-          Array.isArray(data.data)
-        ) {
-          content = Buffer.from(data.data)
-        } else if (
-          Array.isArray(data) &&
-          data[0] &&
-          typeof data[0] === 'object' &&
-          data[0].type === 'Buffer' &&
-          Array.isArray(data[0].data)
-        ) {
-          content = Buffer.from(data[0].data)
-        }
+      records: {
+        type: type,
+        ttl: rrset.ttl,
+        content: rrset?.data?.map((data) => {
+          let content = data
+          if (
+            data &&
+            typeof data === 'object' &&
+            data.type === 'Buffer' &&
+            Array.isArray(data.data)
+          ) {
+            content = Buffer.from(data.data)
+          } else if (
+            Array.isArray(data) &&
+            data[0] &&
+            typeof data[0] === 'object' &&
+            data[0].type === 'Buffer' &&
+            Array.isArray(data[0].data)
+          ) {
+            content = Buffer.from(data[0].data)
+          }
 
-        return {
-          type,
-          content,
-        }
-      }),
+          return content
+        }),
+      },
     }
   }
 
@@ -48,16 +49,22 @@ const cacheRRsets = async (answers) => {
 
   for (const rr of answers) {
     const key = `${rr.name}:${rr.type}`
-    if (!rrsets[key]) rrsets[key] = []
-    rrsets[key].push(rr.data)
+    if (!rrsets[key]) rrsets[key] = { ttl: rr.ttl, data: [] }
+    rrsets[key].ttl = Math.min(rrsets[key].ttl, rr.ttl)
+    rrsets[key].data.push(rr.data)
   }
 
-  for (const [key, dataArray] of Object.entries(rrsets)) {
+  for (const [key, rrset] of Object.entries(rrsets)) {
     const ttl = Math.min(
       ...answers.filter((r) => `${r.name}:${r.type}` === key).map((r) => r.ttl),
     )
     if (ttl > 0) {
-      await cache.set(key, JSON.stringify(dataArray), 'EX', ttl)
+      await cache.set(
+        key,
+        JSON.stringify({ data: rrset.data, ttl: rrset.ttl }),
+        'EX',
+        ttl,
+      )
     }
   }
 }

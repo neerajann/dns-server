@@ -28,7 +28,7 @@ const findRecord = async ({ name, type }) => {
     }
   }
 
-  return await records.findOne(
+  const result = await records.findOne(
     {
       name: name,
       'records.type': type,
@@ -42,5 +42,8 @@ const findRecord = async ({ name, type }) => {
       },
     },
   )
+
+  if (!result || !result?.records?.length) return null
+  return { records: result.records[0] }
 }
 export { findRecord }
