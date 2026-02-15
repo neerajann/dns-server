@@ -25,31 +25,17 @@ const handleQuery = async ({
     )
 
     const question = incomingMessage.questions[0]
+
     if (isBlocked(question.name)) {
       return sendResponse({
         server,
         incomingMessage,
         rinfo,
-        blocked: true,
         rrset: {
           records: {
             content: ['0.0.0.0'],
           },
         },
-      })
-    }
-
-    const recordFromDB = await findRecord({
-      name: question.name,
-      type: question.type,
-    })
-
-    if (recordFromDB) {
-      return sendResponse({
-        server,
-        incomingMessage,
-        rinfo,
-        rrset: recordFromDB,
       })
     }
 
@@ -64,6 +50,20 @@ const handleQuery = async ({
         incomingMessage,
         rinfo,
         rrset,
+      })
+    }
+
+    const recordFromDB = await findRecord({
+      name: question.name,
+      type: question.type,
+    })
+
+    if (recordFromDB) {
+      return sendResponse({
+        server,
+        incomingMessage,
+        rinfo,
+        rrset: recordFromDB,
       })
     }
 
