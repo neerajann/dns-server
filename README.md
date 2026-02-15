@@ -1,6 +1,6 @@
 # Custom DNS Server
 
-A high-performance, caching DNS server with blocklist support built on Node.js. Features intelligent query routing, Redis caching, and MongoDB-backed configuration for custom DNS records and domain blocking.
+A high-performance DNS server with custom record management and domain blocking capabilities. Features intelligent query routing with MongoDB-backed storage for custom DNS records, Redis caching for fast lookups, and automatic upstream fallback to public DNS servers. Built with Node.js for home labs, development environments, and network management.
 
 ## Features
 
