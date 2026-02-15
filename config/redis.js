@@ -10,6 +10,7 @@ const connectRedis = async () => {
     port: REDIS_PORT,
     connectTimeout: 5000,
     maxRetriesPerRequest: null,
+    // Exponential backoff: wait 1s, 2s, 3s... up to max 10s between retries
     retryStrategy(times) {
       return Math.min(times * 1000, 10000)
     },

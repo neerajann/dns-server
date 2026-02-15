@@ -1,4 +1,4 @@
-const UPSTREAM_DNS = [
+export const UPSTREAM_DNS = [
   {
     address: '1.1.1.1',
     port: 53,
@@ -8,7 +8,3 @@ const UPSTREAM_DNS = [
     port: 53,
   },
 ]
-
-const DNS_PORT = 53
-const DNS_HOST = '0.0.0.0'
-export { UPSTREAM_DNS, DNS_HOST, DNS_PORT }

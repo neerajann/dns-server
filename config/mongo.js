@@ -6,7 +6,7 @@ let db
 const connectDatabase = async () => {
   client = new MongoClient(process.env.MONGO_DB_URL)
   await client.connect()
-  db = client.db('dns')
+  db = client.db('dns') // DNS record database
   console.log(styleText('green', '[MongoDB] connected'))
   return db
 }
@@ -19,11 +19,11 @@ const getDatabase = () => {
 }
 
 const getRecordsCollection = () => {
-  return getDatabase().collection('records')
+  return getDatabase().collection('records') // DNS record collection
 }
 
 const getBlocklistCollection = () => {
-  return getDatabase().collection('blocklist')
+  return getDatabase().collection('blocklist') // Blocked domains collection
 }
 
 export {

@@ -6,13 +6,18 @@ import { connectDatabase } from './config/mongo.js'
 import { connectRedis } from './config/redis.js'
 import { loadBlockList } from './services/blocklistService.js'
 import { styleText } from 'node:util'
+import { createIndexes } from './config/indexes.js'
 
 await connectDatabase()
 await connectRedis()
 await loadBlockList()
+await createIndexes()
 
+// Map to store client info so we can route the upstream response back to them
 const pendingRequests = new Map()
+// Main DNS server socket to receive queries from clients
 const server = dgram.createSocket('udp4')
+// Upstream socket to forward queries to external DNS servers (e.g. Cloudflare)
 const upstream = dgram.createSocket('udp4')
 const PORT = process.env.PORT || 53
 
