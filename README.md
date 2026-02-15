@@ -13,11 +13,11 @@ A high-performance DNS server with custom record management and domain blocking 
 ## Architecture
 
 ```
-        [ Client Query ]
+          [ Client Query ]
                  │
                  ▼
        ┌───────────────────┐
-       │    DNS SERVER     │◄─── [ Blocklist Cache ]
+       │    DNS SERVER     │◄─── [ Blocklist ]
        └─────────┬─────────┘
                  │
          (1) Is Blocked? ─────────► YES: Return DNS Sinkhole (0.0.0.0)
@@ -31,7 +31,7 @@ A high-performance DNS server with custom record management and domain blocking 
           (3) CACHE MISS
                  │
         ┌────────┴────────┐
-        │ Check MongoDB   ├───────► FOUND: Return Local Record (skip cache to prevent stale response and eliminate cache invalidation)
+        │ Check MongoDB   ├───────► FOUND: Return Local Record (no caching)
         └────────┬────────┘
                  │
           (4) NOT FOUND
@@ -46,6 +46,49 @@ A high-performance DNS server with custom record management and domain blocking 
      │ 2. Return to Client     │
      └─────────────────────────┘
 ```
+
+## How It Works
+
+The DNS server processes queries through a multi-layered resolution strategy for optimal performance and control:
+
+### Query Resolution Flow
+
+1. **Blocklist Check** (In-Memory set loaded from Mongo DB)
+   - First line of defense against unwanted domains
+   - O(1) lookup using in-memory Set
+   - Blocked domains return `0.0.0.0` (null route)
+
+2. **Cache Lookup** (Redis)
+   - Previously resolved queries are cached with TTL
+   - Follows CNAME chains automatically
+   - **Only caches upstream responses** - your custom records are always fresh
+   - Dramatically reduces response time for repeated queries
+
+3. **Custom Records** (MongoDB)
+   - Checks for user-defined DNS records
+   - Supports A, AAAA, MX, TXT, CNAME, PTR records
+   - **Never cached** - ensures instant updates when you modify records
+   - Perfect for home lab services and custom domains
+
+4. **Upstream Forwarding** (Cloudflare / Google DNS)
+   - If not found in previous layers, forwards to public DNS
+   - Response is cached for future queries
+   - Ensures full DNS coverage for all domains
+
+### Design Decisions
+
+**Why Custom Records Aren't Cached:**
+
+- **Instant Updates**: Changes to MongoDB records take effect immediately
+- **No Stale Data**: Always serve the latest version of your custom records
+- **Zero Cache Invalidation**: Eliminates the complexity of cache invalidation logic
+- **Predictable Behavior**: What you see in the database is what gets served
+
+**What Gets Cached:**
+
+- Only responses from upstream DNS servers (Google, Cloudflare, etc.)
+- Cached with original TTL values from upstream
+- Automatically expires based on DNS TTL
 
 ## Prerequisites
 
