@@ -11,7 +11,7 @@ import { UPSTREAM_DNS } from '../config/constant.js'
  * @param {Map} params.pendingRequests - Map to track pending requests by DNS query ID
  * @param {Object} params.upstream - UDP socket to send upstream queries
  */
-
+const UPSTREAM_TIMEOUT = 2000
 const forwardToUpStream = async ({ msg, rinfo, pendingRequests, upstream }) => {
   const decoded = dnsPacket.decode(msg)
 

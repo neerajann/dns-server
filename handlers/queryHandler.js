@@ -47,6 +47,7 @@ const handleQuery = async ({
             content: ['0.0.0.0'], // Return null route for blocked domains
           },
         },
+        isBlocked: true,
       })
     }
 

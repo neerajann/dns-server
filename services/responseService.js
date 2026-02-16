@@ -8,8 +8,33 @@ import dnsPacket from 'dns-packet'
  * @returns {Array} Array of DNS answer objects
  */
 
-const buildAnswers = (questions, qtype, rrset) => {
+const buildAnswers = ({ questions, qtype, rrset, isBlocked }) => {
   const ttl = rrset.records.ttl || 50
+
+  if (isBlocked) {
+    switch (qtype) {
+      case 'A':
+        return rrset.records.content.map((r) => ({
+          type: 'A',
+          name: questions.name,
+          ttl: 300,
+          class: 'IN',
+          data: '0.0.0.0', // Return DNS sinkhole
+        }))
+
+      case 'AAAA':
+        return rrset.records.content.map((r) => ({
+          type: 'AAAA',
+          name: questions.name,
+          ttl: 300,
+          class: 'IN',
+          data: '::', // IPv6 all-zeros address
+        }))
+
+      default:
+        return [] // For all other types (HTTPS, MX, TXT, etc.), return empty array
+    }
+  }
 
   if (qtype === 'MX') {
     return rrset.records.content.map((r) => ({
@@ -70,11 +95,11 @@ const buildAnswers = (questions, qtype, rrset) => {
  * @param {Object} params.rrset - Resource record set to include in response
  */
 
-const sendResponse = ({ server, incomingMessage, rinfo, rrset }) => {
+const sendResponse = ({ server, incomingMessage, rinfo, rrset, isBlocked }) => {
   const questions = incomingMessage.questions[0]
   const qtype = questions.type
   try {
-    const answers = buildAnswers(questions, qtype, rrset)
+    const answers = buildAnswers({ questions, qtype, rrset, isBlocked })
 
     const response = dnsPacket.encode({
       id: incomingMessage.id,
